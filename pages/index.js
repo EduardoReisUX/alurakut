@@ -7,7 +7,7 @@ import {
   OrkutNostalgicIconSet,
 } from "../src/lib/AlurakutCommons";
 import { ProfileRelationsBoxWrapper } from "../src/components/ProfileRelations";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 function ProfileSidebar(props) {
   return (
@@ -46,6 +46,32 @@ export default function Home() {
       image: "https://alurakut.vercel.app/capa-comunidade-01.jpg",
     },
   ]);
+  const [seguindo, setSeguindo] = useState([]);
+
+  useEffect(() => {
+    async function fetchData() {
+      const res = await fetch(
+        "https://api.github.com/users/EduardoReisUX/following"
+      ).catch((err) => console.log(err));
+      const seguindo = await res.json().catch((err) => console.log(err));
+
+      setSeguindo(seguindo);
+    }
+
+    fetchData();
+  }, []);
+
+  function handleOnSubmit(event) {
+    event.preventDefault();
+    const dadosForm = new FormData(event.target);
+
+    const comunidade = {
+      id: new Date().toISOString,
+      title: dadosForm.get("title"),
+      image: dadosForm.get("image"),
+    };
+    setComunidades([...comunidades, comunidade]);
+  }
 
   return (
     <>
@@ -57,27 +83,12 @@ export default function Home() {
 
         <div className="welcomeArea" style={{ gridArea: "welcomeArea" }}>
           <Box>
-            <h1 className="title">Bem vindo(a), {githubUser}!</h1>
+            <h1 className="title">Bem-vindo(a), {githubUser}!</h1>
             <OrkutNostalgicIconSet />
           </Box>
           <Box>
             <h2 className="subTitle">O que você deseja fazer?</h2>
-            <form
-              onSubmit={function handleOnSubmit(event) {
-                event.preventDefault();
-                const dadosForm = new FormData(event.target);
-
-                console.log(dadosForm.get("title"));
-                console.log(dadosForm.get("image"));
-
-                const comunidade = {
-                  id: new Date().toISOString,
-                  title: dadosForm.get("title"),
-                  image: dadosForm.get("image"),
-                };
-                setComunidades([...comunidades, comunidade]);
-              }}
-            >
+            <form onSubmit={handleOnSubmit}>
               <div>
                 <input
                   placeholder="Qual vai ser o nome da sua comunidade?"
@@ -103,6 +114,23 @@ export default function Home() {
           className="profileRelationsArea"
           style={{ gridArea: "profileRelationsArea" }}
         >
+          <ProfileRelationsBoxWrapper>
+            <h2 className="smallTitle">Seguindo ({seguindo.length})</h2>
+
+            <ul>
+              {seguindo.map((seguidor) => {
+                return (
+                  <li key={seguidor.id}>
+                    <a href={`${seguidor.html_url}`}>
+                      <img src={seguidor.avatar_url} />
+                      <span>{seguidor.login}</span>
+                    </a>
+                  </li>
+                );
+              })}
+            </ul>
+          </ProfileRelationsBoxWrapper>
+
           <ProfileRelationsBoxWrapper>
             <h2 className="smallTitle">
               Comunidades atuais ({comunidades.length})
@@ -131,7 +159,7 @@ export default function Home() {
               {pessoasFavoritas.map((pessoa, index) => {
                 return (
                   <li key={index}>
-                    <a href={`/users/${pessoa}`}>
+                    <a href={`https://github.com/${pessoa}`}>
                       <img src={`https://github.com/${pessoa}.png`} />
                       <span>{pessoa}</span>
                     </a>
