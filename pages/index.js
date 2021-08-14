@@ -1,175 +1,96 @@
-import styled from "styled-components";
-import { MainGrid } from "../src/components/MainGrid";
-import { Box } from "../src/components/Box";
-import {
-  AlurakutMenu,
-  AlurakutProfileSidebarMenuDefault,
-  OrkutNostalgicIconSet,
-} from "../src/lib/AlurakutCommons";
-import { ProfileRelationsBoxWrapper } from "../src/components/ProfileRelations";
-import { useState, useEffect } from "react";
+import React, { useState } from "react";
 
-function ProfileSidebar(props) {
-  return (
-    <Box as="aside">
-      <img
-        src={`https://github.com/${props.githubUser}.png`}
-        style={{ borderRadius: "8px" }}
-      />
-      <hr />
-      <p>
-        <a className="boxLink" href={`https://github.com/${props.githubUser}`}>
-          @{props.githubUser}
-        </a>
-      </p>
-      <hr />
+// Hook do Nextjs
+import { useRouter } from "next/router";
 
-      <AlurakutProfileSidebarMenuDefault />
-    </Box>
-  );
-}
+import nookies from "nookies";
 
-export default function Home() {
-  const githubUser = "EduardoReis";
-  const pessoasFavoritas = [
-    "juunegreiros",
-    "omariosouto",
-    "peas",
-    "rafaballerini",
-    "marcobrunodev",
-    "felipefialho",
-  ];
-  const [comunidades, setComunidades] = useState([
-    {
-      id: "1562",
-      title: "Eu odeio acordar cedo",
-      image: "https://alurakut.vercel.app/capa-comunidade-01.jpg",
-    },
-  ]);
-  const [seguindo, setSeguindo] = useState([]);
+export default function LoginScreen() {
+  const router = useRouter();
+  const [githubUser, setGithubUser] = useState("");
 
-  useEffect(() => {
-    async function fetchData() {
-      const res = await fetch(
-        "https://api.github.com/users/EduardoReisUX/following"
-      ).catch((err) => console.log(err));
-      const seguindo = await res.json().catch((err) => console.log(err));
-
-      setSeguindo(seguindo);
-    }
-
-    fetchData();
-  }, []);
-
-  function handleOnSubmit(event) {
+  async function handleOnSubmit(event) {
     event.preventDefault();
-    const dadosForm = new FormData(event.target);
+    const fetching = await fetch("https://alurakut.vercel.app/api/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ githubUser: githubUser }),
+    });
 
-    const comunidade = {
-      id: new Date().toISOString,
-      title: dadosForm.get("title"),
-      image: dadosForm.get("image"),
-    };
-    setComunidades([...comunidades, comunidade]);
+    const res = await fetching.json();
+    const token_nookies = res.token;
+
+    nookies.set(null, "USER_TOKEN", token_nookies, {
+      path: "/",
+      maxAge: 86400 * 7,
+    });
+
+    router.push("/home");
   }
 
   return (
-    <>
-      <AlurakutMenu githubUser={githubUser} />
-      <MainGrid>
-        <div className="profileArea" style={{ gridArea: "profileArea" }}>
-          <ProfileSidebar githubUser={githubUser} />
-        </div>
+    <main
+      style={{
+        display: "flex",
+        flex: 1,
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+    >
+      <div className="loginScreen">
+        <section className="logoArea">
+          <img src="https://alurakut.vercel.app/logo.svg" />
 
-        <div className="welcomeArea" style={{ gridArea: "welcomeArea" }}>
-          <Box>
-            <h1 className="title">Bem-vindo(a), {githubUser}!</h1>
-            <OrkutNostalgicIconSet />
-          </Box>
-          <Box>
-            <h2 className="subTitle">O que você deseja fazer?</h2>
-            <form onSubmit={handleOnSubmit}>
-              <div>
-                <input
-                  placeholder="Qual vai ser o nome da sua comunidade?"
-                  name="title"
-                  aria-label="Qual vai ser o nome da sua comunidade?"
-                  type="text"
-                />
-              </div>
-              <div>
-                <input
-                  placeholder="Coloque uma URL para usarmos de capa"
-                  name="image"
-                  aria-label="Coloque uma URL para usarmos de capa"
-                />
-              </div>
+          <p>
+            <strong>Conecte-se</strong> aos seus amigos e familiares usando
+            recados e mensagens instantâneas
+          </p>
+          <p>
+            <strong>Conheça</strong> novas pessoas através de amigos de seus
+            amigos e comunidades
+          </p>
+          <p>
+            <strong>Compartilhe</strong> seus vídeos, fotos e paixões em um só
+            lugar
+          </p>
+        </section>
 
-              <button>Criar comunidade</button>
-            </form>
-          </Box>
-        </div>
+        <section className="formArea">
+          <form className="box" onSubmit={handleOnSubmit}>
+            <p>
+              Acesse agora mesmo com seu usuário do <strong>GitHub</strong>!
+            </p>
+            <input
+              placeholder="Usuário"
+              value={githubUser}
+              onChange={(event) => {
+                setGithubUser(event.target.value);
+              }}
+            />
+            {githubUser.length === 0 && <p>"Preencha o campo"</p>}
+            <button type="submit">Login</button>
+          </form>
 
-        <div
-          className="profileRelationsArea"
-          style={{ gridArea: "profileRelationsArea" }}
-        >
-          <ProfileRelationsBoxWrapper>
-            <h2 className="smallTitle">Seguindo ({seguindo.length})</h2>
+          <footer className="box">
+            <p>
+              Ainda não é membro? <br />
+              <a href="/login">
+                <strong>ENTRAR JÁ</strong>
+              </a>
+            </p>
+          </footer>
+        </section>
 
-            <ul>
-              {seguindo.map((seguidor) => {
-                return (
-                  <li key={seguidor.id}>
-                    <a href={`${seguidor.html_url}`}>
-                      <img src={seguidor.avatar_url} />
-                      <span>{seguidor.login}</span>
-                    </a>
-                  </li>
-                );
-              })}
-            </ul>
-          </ProfileRelationsBoxWrapper>
-
-          <ProfileRelationsBoxWrapper>
-            <h2 className="smallTitle">
-              Comunidades atuais ({comunidades.length})
-            </h2>
-
-            <ul>
-              {comunidades.map((comunidade) => {
-                return (
-                  <li key={comunidade.id}>
-                    <a href={`/users/${comunidade.title}`}>
-                      <img src={comunidade.image} />
-                      <span>{comunidade.title}</span>
-                    </a>
-                  </li>
-                );
-              })}
-            </ul>
-          </ProfileRelationsBoxWrapper>
-
-          <ProfileRelationsBoxWrapper>
-            <h2 className="smallTitle">
-              Pessoas da comunidade ({pessoasFavoritas.length})
-            </h2>
-
-            <ul>
-              {pessoasFavoritas.map((pessoa, index) => {
-                return (
-                  <li key={index}>
-                    <a href={`https://github.com/${pessoa}`}>
-                      <img src={`https://github.com/${pessoa}.png`} />
-                      <span>{pessoa}</span>
-                    </a>
-                  </li>
-                );
-              })}
-            </ul>
-          </ProfileRelationsBoxWrapper>
-        </div>
-      </MainGrid>
-    </>
+        <footer className="footerArea">
+          <p>
+            © 2021 alura.com.br - <a href="/">Sobre o Orkut.br</a> -{" "}
+            <a href="/">Centro de segurança</a> - <a href="/">Privacidade</a> -{" "}
+            <a href="/">Termos</a> - <a href="/">Contato</a>
+          </p>
+        </footer>
+      </div>
+    </main>
   );
 }
