@@ -51,3 +51,33 @@ export const ProfileRelationsBoxWrapper = styled(Box)`
     }
   }
 `;
+
+export function ProfileRelations({ title, name, array }) {
+  return (
+    <>
+      <h2 className="smallTitle">
+        {title} ({array.length})
+      </h2>
+
+      <ul>
+        {name === "comunidades"
+          ? array.slice(0, 6).map((comunidade) => (
+              <li key={comunidade.id}>
+                <a href={`/users/${comunidade.creatorSlug}`}>
+                  <img src={comunidade.imageUrl} />
+                  <span>{comunidade.title}</span>
+                </a>
+              </li>
+            ))
+          : array.slice(0, 6).map((item) => (
+              <li key={item.id}>
+                <a href={`${item.html_url}`}>
+                  <img src={item.avatar_url} />
+                  <span>{item.login}</span>
+                </a>
+              </li>
+            ))}
+      </ul>
+    </>
+  );
+}

@@ -52,7 +52,7 @@ export function useFetchAll(props) {
     return comunidadesBackEnd;
   }
 
-  function handleOnSubmit(event) {
+  async function handleOnSubmit(event) {
     event.preventDefault();
 
     const dadosForm = new FormData(event.target);
@@ -62,23 +62,20 @@ export function useFetchAll(props) {
       creatorSlug: githubUser,
     };
 
-    fetch("/api/comunidades", {
+    const response = await fetch("/api/comunidades", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(comunidade),
-    }).then(async (response) => {
-      const dados = await response.json();
-      console.log(dados);
-      const comunidade = dados.registroCriado;
-      setComunidades([...comunidades, comunidade]);
     });
+    const dados = await response.json();
+    const novaComunidade = dados.registroCriado;
+    setComunidades([...comunidades, novaComunidade]);
   }
 
   useEffect(() => {
     (async function () {
-      console.log({ props });
       setSeguindo(await fetchSeguindo(props.githubUser));
       setSeguidores(await fetchSeguidores(props.githubUser));
       setComunidades(await fetchComunidades());

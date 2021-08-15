@@ -1,38 +1,15 @@
-import { useFetchAll } from "../src/hooks/useFetch";
-
 import nookies from "nookies";
 import jwt from "jsonwebtoken";
 
-import { MainGrid } from "../src/components/MainGrid";
-import { Box } from "../src/components/Box";
+import { useFetchAll } from "../src/hooks";
+import { AlurakutMenu, OrkutNostalgicIconSet } from "../src/lib";
 import {
-  AlurakutMenu,
-  AlurakutProfileSidebarMenuDefault,
-  OrkutNostalgicIconSet,
-} from "../src/lib/AlurakutCommons";
-import { ProfileRelationsBoxWrapper } from "../src/components/ProfileRelations";
-
-function ProfileSidebar({ ...props }) {
-  return (
-    <Box as="aside">
-      <img
-        src={`https://github.com/${props.githubUser}.png`}
-        style={{ borderRadius: "8px" }}
-      />
-      <hr />
-      <p>
-        <a className="boxLink" href={`https://github.com/${props.githubUser}`}>
-          @{props.githubUser}
-        </a>
-      </p>
-      <hr />
-
-      <AlurakutProfileSidebarMenuDefault />
-    </Box>
-  );
-}
-
-function ProfileRelations({ id, title, total }) {}
+  MainGrid,
+  Box,
+  ProfileSidebar,
+  ProfileRelationsBoxWrapper,
+  ProfileRelations,
+} from "../src/components";
 
 export default function Home(props) {
   const githubUser = props.githubUser;
@@ -81,54 +58,27 @@ export default function Home(props) {
           style={{ gridArea: "profileRelationsArea" }}
         >
           <ProfileRelationsBoxWrapper>
-            <h2 className="smallTitle">
-              Comunidades atuais ({comunidades.length})
-            </h2>
-
-            <ul>
-              {comunidades.slice(0, 6).map((comunidade) => {
-                return (
-                  <li key={comunidade.id}>
-                    <a href={`/users/${comunidade.creatorSlug}`}>
-                      <img src={comunidade.imageUrl} />
-                      <span>{comunidade.title}</span>
-                    </a>
-                  </li>
-                );
-              })}
-            </ul>
+            <ProfileRelations
+              title="Comunidades atuais"
+              name="comunidades"
+              array={comunidades}
+            />
           </ProfileRelationsBoxWrapper>
 
           <ProfileRelationsBoxWrapper>
-            <h2 className="smallTitle">Seguindo ({seguindo.length})</h2>
-
-            <ul>
-              {seguindo.slice(0, 6).map((seguindo) => {
-                return (
-                  <li key={seguindo.id}>
-                    <a href={`${seguindo.html_url}`}>
-                      <img src={seguindo.avatar_url} />
-                      <span>{seguindo.login}</span>
-                    </a>
-                  </li>
-                );
-              })}
-            </ul>
+            <ProfileRelations
+              title="Seguindo"
+              name="seguindo"
+              array={seguindo}
+            />
           </ProfileRelationsBoxWrapper>
 
           <ProfileRelationsBoxWrapper>
-            <h2 className="smallTitle">Seguidores ({seguidores.length})</h2>
-
-            <ul>
-              {seguidores.slice(0, 6).map((seguidor) => (
-                <li key={seguidor.id}>
-                  <a href={seguidor.html_url}>
-                    <img src={seguidor.avatar_url} />
-                    <span>{seguidor.login}</span>
-                  </a>
-                </li>
-              ))}
-            </ul>
+            <ProfileRelations
+              title="Seguidores"
+              name="seguidores"
+              array={seguidores}
+            />
           </ProfileRelationsBoxWrapper>
         </div>
       </MainGrid>
