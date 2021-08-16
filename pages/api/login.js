@@ -1,6 +1,6 @@
 export default async function api(request, response) {
   if (request.method == "POST") {
-    const READ_TOKEN = process.env.CMS_READ_TOKEN;
+    const READ_TOKEN = process.env.NEXT_PUBLIC_CMS_READ_TOKEN;
 
     const res = await fetch("https://graphql.datocms.com/", {
       method: "POST",

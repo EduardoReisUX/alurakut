@@ -18,6 +18,21 @@ function Link({ href, children, ...props }) {
 // ================================================================================================================
 export function AlurakutMenu({ githubUser }) {
   const [isMenuOpen, setMenuState] = React.useState(false);
+
+  function LogOut() {
+    (async function () {
+      const { default: nookies } = await import("nookies");
+      nookies.destroy(null, "USER_TOKEN", {
+        path: "/",
+      });
+    })();
+
+    (async function () {
+      const { default: useRouter } = await import("next/router");
+      useRouter.push("/");
+    })();
+  }
+
   return (
     <AlurakutMenu.Wrapper isMenuOpen={isMenuOpen}>
       <div className="container">
@@ -39,7 +54,7 @@ export function AlurakutMenu({ githubUser }) {
         </nav>
 
         <nav>
-          <a href={`/login`}>Sair</a>
+          <a onClick={LogOut}>Sair</a>
           <div>
             <input placeholder="Pesquisar no Orkut" />
           </div>

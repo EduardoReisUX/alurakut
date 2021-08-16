@@ -11,6 +11,7 @@ export default function LoginScreen() {
 
   async function handleOnSubmit(event) {
     event.preventDefault();
+
     const fetching = await fetch("https://alurakut.vercel.app/api/login", {
       method: "POST",
       headers: {

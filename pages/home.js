@@ -89,6 +89,10 @@ export default function Home(props) {
 export async function getServerSideProps(context) {
   const cookies = nookies.get(context);
   const token = cookies.USER_TOKEN;
+
+  // if user token is null, redirect to login page
+  if (!token) return { redirect: { destination: "/", permanent: false } };
+
   const { githubUser } = jwt.decode(token);
 
   // user verification part
@@ -102,13 +106,9 @@ export async function getServerSideProps(context) {
   console.log({ isAuthenticated });
   console.log("Token decoded:", jwt.decode(token));
 
+  // If user is not autheticated, redirect to login page
   if (!isAuthenticated) {
-    return {
-      redirect: {
-        destination: "/",
-        permanent: false,
-      },
-    };
+    return { redirect: { destination: "/", permanent: false } };
   }
 
   return {
